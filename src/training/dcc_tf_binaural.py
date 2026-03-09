@@ -100,7 +100,7 @@ class Net(nn.Module):
         out_buf = x[..., -self.out_buf_len:]
         x = self.out_conv(x)
 
-        return x, enc_buf, dec_buf, out_buf
+        return x
 
     def forward(self, inputs, init_enc_buf=None, init_dec_buf=None,
                 init_out_buf=None, pad=True, writer=None, step=None, idx=None):
@@ -135,7 +135,7 @@ class Net(nn.Module):
             pad_size = (self.L, self.L) if self.lookahead else (0, 0)
             x, mod = mod_pad(x, chunk_size=self.L, pad=pad_size)
 
-        x, enc_buf, dec_buf, out_buf = self.predict(
+        x = self.predict(
             x, label, enc_buf, dec_buf, out_buf)
 
         # Remove mod padding, if present.
@@ -144,10 +144,7 @@ class Net(nn.Module):
         
         out = {'x': x}
 
-        if init_enc_buf is None:
-            return out
-        else:
-            return out, enc_buf, dec_buf, out_buf
+        return out
 
 # Define optimizer, loss and metrics
 
@@ -215,14 +212,15 @@ def format_results(idx, inputs, output, gt, metrics, output_dir=None):
 if __name__ == "__main__":
     torch.random.manual_seed(0)
 
-    model = Net(41)
+    model = Net(4)
     model.eval()
 
     with torch.no_grad():
         x = torch.randn(1, 2, 417)
-        emb = torch.randn(1, 41)
+        emb = torch.randn(1, 4)
 
         y = model({'mixture': x, 'label_vector': emb})
 
-        print(f'{y.shape=}')
-        print(f"First channel data:\n{y[0, 0]}")
+        pred = y['x']
+
+        print(f'{pred.shape}')
