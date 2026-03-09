@@ -3,12 +3,12 @@
     "base_metric": "scale_invariant_signal_noise_ratio",
     "fix_lr_epochs": 40,
     "epochs": 80,
-    "batch_size": 16,
-    "eval_batch_size": 64,
-    "n_workers": 16,
+    "batch_size": 8,
+    "eval_batch_size": 16,
+    "n_workers": 4,
     "model_params": {
         "L": 32,
-        "label_len": 20,
+        "label_len": 4,
         "model_dim": 256,
         "num_enc_layers": 10,
         "num_dec_layers": 1,
@@ -20,27 +20,21 @@
     },
     "train_dataset": "src.training.datasets.musdb_binaural.MUSDBDataset",
     "train_data_args": {
-        "dir": "/scratch/rn2214/source-separation/data/binaural_musdb18/split/",
-        "dset": "train",
-        "sr": 44100,
-        "resample_rate": null,
-        "reverb": false
+        "root": "/scratch/rn2214/source-separation/data/binaural_musdb18/split/",
+        "subset": "train",
+        "sample_rate": 44100
     },
     "val_dataset": "src.training.datasets.musdb_binaural.MUSDBDataset",
     "val_data_args": {
-        "dir": "/scratch/rn2214/source-separation/data/binaural_musdb18/split/",
-        "dset": "valid",
-        "sr": 44100,
-        "resample_rate": null,
-        "reverb": false
+        "root": "/scratch/rn2214/source-separation/data/binaural_musdb18/split/",
+        "subset": "valid",
+        "sample_rate": 44100
     },
     "test_dataset": "src.training.datasets.musdb_binaural.MUSDBDataset",
     "test_data_args": {
-        "dir": "/scratch/rn2214/source-separation/data/binaural_musdb18/split/",
-        "dset": "test",
-        "sr": 44100,
-        "resample_rate": null,
-        "reverb": false
+        "root": "/scratch/rn2214/source-separation/data/binaural_musdb18/split/",
+        "subset": "test",
+        "sample_rate": 44100
     },
     "optim": {
         "lr": 0.0005,
