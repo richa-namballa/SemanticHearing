@@ -5,9 +5,6 @@ import torchaudio
 from torch.utils.data import Dataset
 
 
-STEMS = ["vocals", "drums", "bass", "other"]
-
-
 class MUSDBDataset(Dataset):
     def __init__(
         self,
@@ -22,7 +19,7 @@ class MUSDBDataset(Dataset):
             d for d in os.listdir(self.root)
             if os.path.isdir(os.path.join(self.root, d))
         )
-
+        self.STEMS = ["vocals", "drums", "bass", "other"]
         self.sample_rate = sample_rate
         self.segment_samples = sample_rate * segment_seconds
         self.num_classes = len(self.STEMS)
