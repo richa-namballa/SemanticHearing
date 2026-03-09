@@ -79,7 +79,7 @@ def train_epoch(model: nn.Module, device: torch.device,
                         metrics[k] += metrics_batch[k]
 
                 output = train_loader.dataset.output_to(output, 'cpu')
-                inp, tgt = train_loader.dataset.to(inp, tgt, 'cpu')=optimizer
+                inp, tgt = train_loader.dataset.to(inp, tgt, 'cpu')
                 
                 # Show current loss in the progress meter
                 t.set_postfix(loss='%.05f'%loss.item())
