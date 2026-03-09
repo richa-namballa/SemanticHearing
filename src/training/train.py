@@ -44,17 +44,7 @@ def train_epoch(model: nn.Module, device: torch.device,
     tensorboard_trace_handler = torch.profiler.tensorboard_trace_handler(
         writer.log_dir)
     with tqdm(total=len(train_loader), desc='Train', ncols=100) as t:
-    #     with torch.profiler.profile(
-    #         schedule=torch.profiler.schedule(
-    #             skip_first=10,
-    #             wait=2,
-    #             warmup=2,
-    #             active=6,
-    #             repeat=2),
-    #         on_trace_ready=tensorboard_trace_handler,
-    #         profile_memory=True,
-    #         with_stack=True
-    #     ) as profiler:
+
             for batch_idx, (inp, tgt) in enumerate(train_loader):
                 # Move data to device
                 inp, tgt = train_loader.dataset.to(inp, tgt, device)
@@ -89,16 +79,8 @@ def train_epoch(model: nn.Module, device: torch.device,
                         metrics[k] += metrics_batch[k]
 
                 output = train_loader.dataset.output_to(output, 'cpu')
-                inp, tgt = train_loader.dataset.to(inp, tgt, 'cpu')
-                if writer is not None and batch_idx == 0:
-                    train_loader.dataset.tensorboard_add_sample(
-                        writer, tag='Train',
-                        sample=(inp, output, tgt),
-                        step=epoch)
-
-                # Step the profiler
-                # profiler.step()
-
+                inp, tgt = train_loader.dataset.to(inp, tgt, 'cpu')=optimizer
+                
                 # Show current loss in the progress meter
                 t.set_postfix(loss='%.05f'%loss.item())
                 t.update()
