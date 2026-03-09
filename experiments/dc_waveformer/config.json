@@ -18,25 +18,25 @@
         "conditioning": "mult",
         "out_buf_len": 4
     },
-    "train_dataset": "src.training.datasets.musdb_binaural.MUSDBBinauralDataset",
+    "train_dataset": "src.training.datasets.musdb_binaural.MUSDBDataset",
     "train_data_args": {
-        "dir": "data/BinauralCuratedDataset/scaper_fmt/train",
+        "dir": "/scratch/rn2214/source-separation/data/binaural_musdb18/split/",
         "dset": "train",
         "sr": 44100,
         "resample_rate": null,
         "reverb": false
     },
-    "val_dataset": "src.training.datasets.musdb_binaural.MUSDBBinauralDataset",
+    "val_dataset": "src.training.datasets.musdb_binaural.MUSDBDataset",
     "val_data_args": {
-        "dir": "data/BinauralCuratedDataset/scaper_fmt/val",
+        "dir": "/scratch/rn2214/source-separation/data/binaural_musdb18/split/",
         "dset": "valid",
         "sr": 44100,
         "resample_rate": null,
         "reverb": false
     },
-    "test_dataset": "src.training.datasets.musdb_binaural.MUSDBBinauralDataset",
+    "test_dataset": "src.training.datasets.musdb_binaural.MUSDBDataset",
     "test_data_args": {
-        "dir": "data/BinauralCuratedDataset/scaper_fmt/test",
+        "dir": "/scratch/rn2214/source-separation/data/binaural_musdb18/split/",
         "dset": "test",
         "sr": 44100,
         "resample_rate": null,
