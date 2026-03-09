@@ -88,11 +88,6 @@ def test_epoch(model: nn.Module, device: torch.device,
             output = test_loader.dataset.output_to(output, 'cpu')
             inp, tgt = test_loader.dataset.to(inp, tgt, 'cpu')
             if writer is not None:
-                if batch_idx == 0:
-                    test_loader.dataset.tensorboard_add_sample(
-                        writer, tag='Test',
-                        sample=(inp, output, tgt),
-                        step=epoch)
                 test_loader.dataset.tensorboard_add_metrics(
                     writer, tag='Test', metrics=metrics_batch, step=epoch)
 
