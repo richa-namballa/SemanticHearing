@@ -289,16 +289,19 @@ if __name__ == '__main__':
 
     # Initialize tensorboard writer
     tensorboard_dir = os.path.join(args.exp_dir, 'tensorboard')
-    args.writer = SummaryWriter(tensorboard_dir, purge_step=args.start_epoch)
     if args.wandb:
         logging.info("Initializing wandb...")
         import wandb
         wandb.login()
+        wandb.tensorboard.patch(root_logdir=tensorboard_dir)
         wandb.init(
-            project='semantic_hearing', sync_tensorboard=True,
+            entity="marl-richa",
+            project='sh', sync_tensorboard=True,
             dir=tensorboard_dir, name=os.path.basename(args.exp_dir),
             config=params)
         logging.info("wandb initialized successfully!")
+
+    args.writer = SummaryWriter(tensorboard_dir, purge_step=args.start_epoch)
 
     exec("import %s as network" % args.model)
     logging.info("Imported the model from '%s'." % args.model)
