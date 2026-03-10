@@ -7,13 +7,7 @@ from torch.utils.data import Dataset
 
 
 class MUSDBDataset(Dataset):
-    def __init__(
-        self,
-        root,
-        subset="train",
-        sample_rate=44100,
-        segment_seconds=6
-    ):
+    def __init__(self, root, subset="train", sample_rate=44100, segment_seconds=6):
 
         self.root = os.path.join(root, subset)
         self.tracks = sorted(
@@ -30,7 +24,8 @@ class MUSDBDataset(Dataset):
 
     def _load_audio(self, path):
 
-        audio, sr = torchaudio.load(path)
+        # load without normalization
+        audio, sr = torchaudio.load(path, normalize=False)
 
         if sr != self.sample_rate:
             audio = torchaudio.functional.resample(audio, sr, self.sample_rate)
@@ -64,6 +59,11 @@ class MUSDBDataset(Dataset):
 
         mixture, target = self._random_crop(mixture, target)
 
+        # Peak normalization w.r.t. mixture peak
+        maxval = (torch.max(torch.abs(mixture)) + 1e-6)
+        mixture = mixture / maxval
+        target = target / maxval
+
         label_vector = torch.zeros(self.num_classes)
         label_vector[stem_idx] = 1.0
 
@@ -78,11 +78,11 @@ class MUSDBDataset(Dataset):
 
         return inputs, target
 
-    def to(self, inputs, gt, device):
+    def to(self, inputs, target, device):
         inputs['mixture'] = inputs['mixture'].to(device)
         inputs['label_vector'] = inputs['label_vector'].to(device)
-        gt = gt.to(device)
-        return inputs, gt
+        target = target.to(device)
+        return inputs, target
 
     def output_to(self, output, device):
         for k, v in output.items():
@@ -95,21 +95,19 @@ class MUSDBDataset(Dataset):
         return output
 
     def collate_fn(self, batch):
-        inputs, gt = zip(*batch)
+        inputs, target = zip(*batch)
         inputs = {
             'mixture': torch.stack([i['mixture'] for i in inputs]),
             'label_vector': torch.stack([i['label_vector'] for i in inputs]),
             'metadata': [i['metadata'] for i in inputs]
         }
-        gt = torch.stack(gt)
-        return inputs, gt
+        target = torch.stack(target)
+        return inputs, target
 
     def tensorboard_add_metrics(self, writer, tag, metrics, step):
         """
         Add metrics to tensorboard.
         """
         vals = np.asarray(metrics['scale_invariant_signal_noise_ratio'])
-
-        # writer.add_histogram('%s/%s' % (tag, 'SI-SNRi'), vals, step)
 
         return
