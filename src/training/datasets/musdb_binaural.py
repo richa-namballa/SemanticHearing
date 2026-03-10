@@ -110,6 +110,6 @@ class MUSDBDataset(Dataset):
         """
         vals = np.asarray(metrics['scale_invariant_signal_noise_ratio'])
 
-        writer.add_histogram('%s/%s' % (tag, 'SI-SNRi'), vals, step)
+        # writer.add_histogram('%s/%s' % (tag, 'SI-SNRi'), vals, step)
 
         return
