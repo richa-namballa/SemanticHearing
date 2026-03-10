@@ -15,7 +15,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 import torch.optim as optim
 from torch.utils.tensorboard import SummaryWriter
-from tqdm import tqdm  # pylint: disable=unused-import
+from tqdm import tqdm
 from torchmetrics.functional import(
     scale_invariant_signal_noise_ratio as si_snr,
     signal_noise_ratio as snr,
@@ -132,7 +132,6 @@ def train(args: argparse.Namespace):
     } if use_cuda else {}
 
     # Set up data loaders
-    #print(args.batch_size, args.eval_batch_size)
     train_loader = torch.utils.data.DataLoader(
         data_train, batch_size=args.batch_size, shuffle=True,
         collate_fn=data_train.collate_fn, **kwargs)
@@ -142,10 +141,6 @@ def train(args: argparse.Namespace):
 
     # Set up model
     model = network.Net(**args.model_params)
-
-    # Add graph to tensorboard with example train samples
-    # _mixed, _label, _ = next(iter(val_loader))
-    # args.writer.add_graph(model, (_mixed, _label))
 
     if use_cuda and data_parallel:
         model = nn.DataParallel(model, device_ids=device_ids)
@@ -181,20 +176,23 @@ def train(args: argparse.Namespace):
     # Training loop
     try:
         torch.autograd.set_detect_anomaly(args.detect_anomaly)
+
         for epoch in range(args.start_epoch, args.epochs + 1):
+
             logging.info("Epoch %d:" % epoch)
             checkpoint_file = os.path.join(args.exp_dir, '%d.pt' % epoch)
+
             assert not os.path.exists(checkpoint_file), \
                 "Checkpoint file %s already exists" % checkpoint_file
-            #print("---- begin trianivg")
+
             curr_train_metrics = train_epoch(model, device, optimizer,
                                              train_loader, args.n_train_items,
                                              epoch=epoch, writer=args.writer)
-            #raise KeyboardInterrupt
             curr_test_metrics = test_epoch(model, device, val_loader,
                                            args.n_test_items, network.loss,
                                            network.metrics, epoch=epoch,
                                            writer=args.writer)
+
             # LR scheduler
             if epoch >= args.fix_lr_epochs:
                 lr_scheduler.step(curr_test_metrics[base_metric])
@@ -222,25 +220,27 @@ def train(args: argparse.Namespace):
             if max(val_metrics[base_metric]) == val_metrics[base_metric][-1]:
                 logging.info("Found best validation %s!" % base_metric)
 
-            utils.save_checkpoint(
-                checkpoint_file, epoch, model, optimizer, lr_scheduler,
-                train_metrics, val_metrics, data_parallel)
-            logging.info("Saved checkpoint at %s" % checkpoint_file)
+                # Save checkpoint if validation metric improves
+                utils.save_checkpoint(
+                    checkpoint_file, epoch, model, optimizer, lr_scheduler,
+                    train_metrics, val_metrics, data_parallel)
+                logging.info("Saved checkpoint at %s" % checkpoint_file)
 
             utils.save_graph(train_metrics, val_metrics, args.exp_dir)
 
         return train_metrics, val_metrics
 
-
     except KeyboardInterrupt:
         print("Interrupted")
-    except Exception as _:  # pylint: disable=broad-except
-        import traceback  # pylint: disable=import-outside-toplevel
+    except Exception as _:
+        import traceback
         traceback.print_exc()
 
 
 if __name__ == '__main__':
+
     parser = argparse.ArgumentParser()
+
     # Data Params
     parser.add_argument('exp_dir', type=str,
                         default='./experiments/fsd_mask_label_mult',
