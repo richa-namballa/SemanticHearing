@@ -1,5 +1,5 @@
 """
-The main training script for training on synthetic data
+The main training script for training on synthetic mixtures.
 """
 
 import argparse
@@ -25,6 +25,7 @@ from torchmetrics.functional import(
 from src.helpers import utils
 from src.training.eval import test_epoch
 
+
 def train_epoch(model: nn.Module, device: torch.device,
                 optimizer: optim.Optimizer,
                 train_loader: torch.utils.data.dataloader.DataLoader,
@@ -43,6 +44,7 @@ def train_epoch(model: nn.Module, device: torch.device,
 
     tensorboard_trace_handler = torch.profiler.tensorboard_trace_handler(
         writer.log_dir)
+
     with tqdm(total=len(train_loader), desc='Train', ncols=100) as t:
 
             for batch_idx, (inp, tgt) in enumerate(train_loader):
@@ -162,16 +164,20 @@ def train(args: argparse.Namespace):
     val_metrics = {}
 
     # Load the model if `args.start_epoch` is greater than 0. This will load the
-    # model from epoch = `args.start_epoch - 1`
+    # model from epoch = `args.start_epoch`
     assert args.start_epoch >=0, "start_epoch must be greater than 0."
     if args.start_epoch > 0:
         checkpoint_path = os.path.join(args.exp_dir,
-                                       '%d.pt' % (args.start_epoch - 1))
+                                       '%d.pt' % (args.start_epoch))
         _, train_metrics, val_metrics = utils.load_checkpoint(
             checkpoint_path, model, optim=optimizer, lr_sched=lr_scheduler,
             data_parallel=data_parallel)
         logging.info("Loaded checkpoint from %s" % checkpoint_path)
         logging.info("Learning rates restored to:" + utils.format_lr_info(optimizer))
+
+        # start training from the next epoch
+        args.start_epoch += 1
+        logging.info("Continuing training from Epcoch %s" % args.start_epoch)
 
     # Training loop
     try:
@@ -268,11 +274,11 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     # Set the random seed for reproducible experiments
-    torch.manual_seed(230)
-    random.seed(230)
-    np.random.seed(230)
-    if args.use_cuda:
-        torch.cuda.manual_seed(230)
+    # torch.manual_seed(230)
+    # random.seed(230)
+    # np.random.seed(230)
+    # if args.use_cuda:
+    #     torch.cuda.manual_seed(230)
 
     # Set up checkpoints
     if not os.path.exists(args.exp_dir):
