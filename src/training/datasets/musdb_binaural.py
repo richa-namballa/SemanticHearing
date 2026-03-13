@@ -57,12 +57,13 @@ class MUSDBDataset(Dataset):
         mixture = self._load_audio(os.path.join(track_dir, "mixture.wav"))
         target = self._load_audio(os.path.join(track_dir, f"{stem_name}.wav"))
 
-        mixture, target = self._random_crop(mixture, target)
+        max_val = (torch.max(torch.abs(mixture)) + 1e-6)
 
-        # Peak normalization w.r.t. mixture peak
-        maxval = (torch.max(torch.abs(mixture)) + 1e-6)
-        mixture = mixture / maxval
-        target = target / maxval
+        # Peak normalization w.r.t. original mixture peak
+        mixture = mixture / max_val
+        target = target / max_val
+
+        mixture, target = self._random_crop(mixture, target)
 
         label_vector = torch.zeros(self.num_classes)
         label_vector[stem_idx] = 1.0

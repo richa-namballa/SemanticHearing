@@ -141,14 +141,6 @@ class CuratedBinauralAugRIRDataset(CuratedBinauralDataset):
             gt = gt / maxval
             
             maxval = 1
-            
-        # # Augment scale
-        # if self.dset != 'test':
-        #     random_amplitude = np.random.uniform(0.2, 1)
-        #     random_scale = random_amplitude / maxval
-        #     mixture *= random_scale
-        #     gt *= random_scale
-        #     metadata['random_amplitude'] = random_amplitude
 
         if resampler is not None:
             mixture = resampler(mixture.to(torch.float))
