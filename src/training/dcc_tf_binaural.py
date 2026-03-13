@@ -216,8 +216,8 @@ if __name__ == "__main__":
     model.eval()
 
     with torch.no_grad():
-        x = torch.randn(1, 2, 417)
-        emb = torch.randn(1, 4)
+        x = torch.randn(8, 2, 417)
+        emb = torch.randn(8, 4)
 
         y = model({'mixture': x, 'label_vector': emb})
 
